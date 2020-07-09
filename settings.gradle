@@ -1,0 +1,3 @@
+include ':awesomebrowser'
+include ':demo'
+rootProject.name = "Awesome Browser"
