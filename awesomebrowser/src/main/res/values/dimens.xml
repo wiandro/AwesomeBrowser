@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="super_large_text_size">19sp</dimen>
+    <dimen name="medium_text_size">15sp</dimen>
+
+    <dimen name="default_elevation">5dp</dimen>
+
+    <dimen name="margin16">16dp</dimen>
+    <dimen name="margin8">8dp</dimen>
+
+</resources>

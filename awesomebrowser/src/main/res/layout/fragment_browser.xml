@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:clipChildren="true"
+    android:clipToPadding="true"
+    android:fitsSystemWindows="true"
+    android:layoutDirection="ltr">
+
+    <!--        header url bar-->
+    <LinearLayout
+        android:id="@+id/header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#fefefe"
+        android:elevation="@dimen/default_elevation"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ic_close"
+            android:layout_width="36dp"
+            android:layout_height="match_parent"
+            android:padding="5dp"
+            android:tint="#777777"
+            app:srcCompat="@drawable/ic_close" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ic_secure_connection"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="@dimen/margin16"
+            android:layout_marginLeft="@dimen/margin16"
+            android:background="#f1f1f1"
+            android:padding="8dp"
+            app:srcCompat="@drawable/ic_lock_gray" />
+
+        <TextView
+            android:id="@+id/url_bar"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#f1f1f1"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:text="loading..."
+            android:textColor="#333333"
+            tools:text="https://google.com" />
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/margin8"
+            android:adjustViewBounds="true"
+            android:padding="3dp"
+            android:scaleType="centerCrop" />
+
+    </LinearLayout>
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_layout" />
+
+    <!--        error layout-->
+    <LinearLayout
+        android:id="@+id/error_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_layout">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:srcCompat="@drawable/ic_info" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="خطا در بارگزاری صفحه :( "
+            android:textSize="@dimen/super_large_text_size" />
+
+    </LinearLayout>
+
+    <!--        ssl error layout-->
+    <LinearLayout
+        android:id="@+id/ssl_error_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_layout">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:srcCompat="@drawable/ic_info" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="اتصال در این صفحه تضمین شده نیست و ممکن است خطراتی برای شما داشته باشد."
+            android:textSize="@dimen/super_large_text_size" />
+
+        <Button
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp"
+            android:background="#777777"
+            android:paddingLeft="16dp"
+            android:paddingTop="8dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="8dp"
+            android:text="عدم بارگزاری آدرس"
+            android:textColor="@color/white"
+            android:textSize="@dimen/medium_text_size"
+            app:layout_constraintBottom_toTopOf="@+id/skip_text_view"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <TextView
+            android:id="@+id/proceed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="8dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="8dp"
+            android:text="ادامه بارگزاری (ناامن)"
+            android:textColor="#ec4b2e"
+            android:textSize="@dimen/medium_text_size"
+            app:layout_constraintBottom_toTopOf="@+id/skip_text_view"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressbar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="12dp"
+        android:elevation="@dimen/default_elevation"
+        android:indeterminate="true"
+        android:indeterminateBehavior="repeat"
+        android:indeterminateDuration="150"
+        android:progressDrawable="@drawable/horizontal_progress"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_layout" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
