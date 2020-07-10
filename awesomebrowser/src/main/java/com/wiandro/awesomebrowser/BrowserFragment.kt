@@ -14,25 +14,12 @@ import android.view.ViewGroup
 import android.webkit.WebSettings
 import androidx.fragment.app.Fragment
 import com.wiandro.awesomebrowser.databinding.FragmentBrowserBinding
+import java.util.*
 
 /**
  * CREATED BY Javadhme
  */
 class BrowserFragment : Fragment() {
-
-    companion object {
-        private val TAG: String = BrowserFragment::class.java.simpleName
-        private const val KEY_PRODUCT_URL = "PRODUCT_URL"
-        private const val KEY_SHOW_URL_BAR = "SHOW_HEADER"
-
-        fun newInstance(url: String, showUrlBar: Boolean) =
-            BrowserFragment().also {
-                it.arguments = Bundle().apply {
-                    putString(KEY_PRODUCT_URL, url)
-                    putBoolean(KEY_SHOW_URL_BAR, showUrlBar)
-                }
-            }
-    }
 
     private var url: String? = ""
     private var shouldDesiplayUrlBar = false
@@ -94,7 +81,7 @@ class BrowserFragment : Fragment() {
             settings.apply {
                 lightTouchEnabled = true
                 javaScriptEnabled = true
-                cacheMode = WebSettings.LOAD_NO_CACHE //TODO put it in builder
+                cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
                 setAppCacheEnabled(true)
                 domStorageEnabled = true
                 allowFileAccess = true
@@ -109,7 +96,7 @@ class BrowserFragment : Fragment() {
 
             }
 
-            webViewClient = WebClient(mBinding, object: WebClientCallback{
+            webViewClient = WebClient(mBinding, object : WebClientCallback {
 
                 override fun onLoadStart(url: String, sslError: Boolean) {
                     setBeautifyURL(url, false)
@@ -210,4 +197,51 @@ class BrowserFragment : Fragment() {
         mBinding.icSecureConnection.setImageResource(R.drawable.ic_lock_red)
     }
 
+    companion object {
+        private val TAG: String = BrowserFragment::class.java.simpleName
+        private const val KEY_PRODUCT_URL = "PRODUCT_URL"
+        private const val KEY_SHOW_URL_BAR = "SHOW_HEADER"
+        private const val KEY_REQUEST_HEADERS = "REQUEST_HEADERS"
+        private const val KEY_REQUEST_CACHE_MODE = "REQUEST_CACHE_MODE"
+
+        enum class CacheMode {
+            NO_CACHE,
+            CACHE_ONLY,
+            CACHE_ELSE_NETWORK
+        }
+
+        fun test(){}
+        class Builder(private val url: String) {
+            private var showAddressBar = false
+            private val headers = HashMap<String, String>()
+            private var cacheMode: CacheMode? = null
+
+            fun showAddressBar(showAddressBar: Boolean): Builder {
+                this.showAddressBar = showAddressBar
+                return this
+            }
+
+            fun addHeader(key: String, value: String): Builder {
+                headers[key] = value
+                return this
+            }
+
+            fun setCacheMode(cacheMode: CacheMode):Builder{
+                this.cacheMode = cacheMode
+                return this
+            }
+
+            fun build(): BrowserFragment {
+                val bundle = Bundle()
+                bundle.putString(KEY_PRODUCT_URL, url)
+                bundle.putBoolean(KEY_SHOW_URL_BAR, showAddressBar)
+                bundle.putSerializable(KEY_REQUEST_HEADERS, headers)
+                bundle.putSerializable(KEY_REQUEST_CACHE_MODE , cacheMode)
+                val fragment = BrowserFragment()
+                fragment.arguments = bundle
+                return fragment
+            }
+
+        }
+    }
 }
