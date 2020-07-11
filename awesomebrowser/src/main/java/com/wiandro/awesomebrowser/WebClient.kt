@@ -1,21 +1,21 @@
 package com.wiandro.awesomebrowser
 
 import android.annotation.TargetApi
-import android.content.Intent
 import android.graphics.Bitmap
 import android.net.http.SslError
 import android.os.Build
 import android.os.Message
 import android.util.Log
-import android.view.View
 import android.webkit.*
 import androidx.annotation.RequiresApi
-import com.wiandro.awesomebrowser.databinding.FragmentBrowserBinding
 
 /**
  * CREATED BY Javadhem
  */
-class WebClient(private val mBinding: FragmentBrowserBinding, private val callback: WebClientCallback) : WebViewClient() {
+class WebClient(
+    private val browserCallback: BrowserCallback?,
+    private val webClientCallback: WebClientCallback
+) : WebViewClient() {
 
     private val TAG = WebClient::class.java.simpleName
 
@@ -23,23 +23,19 @@ class WebClient(private val mBinding: FragmentBrowserBinding, private val callba
 
     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
         Log.i(TAG, "onPageStarted() called with: url = [$url]")
-        mBinding.progressbar.visibility = View.VISIBLE
-        mBinding.errorLayout.visibility = View.GONE
-        mBinding.sslErrorLayout.visibility = View.GONE
 
+        webClientCallback.onLoadStart(url)
         isSSLError = false
-        mBinding.urlBar.text = url
-
-        callback.onLoadStart(url, false)
 
         super.onPageStarted(view, url, favicon)
     }
 
     override fun onPageFinished(view: WebView, url: String) {
         Log.v(TAG, "onPageFinished() called with: url = [$url]")
-        mBinding.progressbar.visibility = View.GONE
 
-        callback.onLoadFinish(url, isSSLError)
+        if (!isSSLError)
+            webClientCallback.onLoadFinish(url)
+
         super.onPageFinished(view, url)
     }
 
@@ -88,29 +84,15 @@ class WebClient(private val mBinding: FragmentBrowserBinding, private val callba
         if (!isFailed) super.onReceivedError(view, request, error)
     }
 
-    override fun onReceivedSslError(
-        view: WebView,
-        handler: SslErrorHandler,
-        error: SslError
-    ) {
+    override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
         Log.e(
             TAG,
             "onReceivedSslError() called with: view = [$view], handler = [$handler], error = [$error]"
         )
-        isSSLError = true
-        mBinding.progressbar.visibility = View.GONE
-        mBinding.sslErrorLayout.visibility = View.VISIBLE
-        mBinding.proceed.setOnClickListener {
-            mBinding.sslErrorLayout.visibility = View.GONE
-            handler.proceed()
-        }
-        mBinding.cancel.setOnClickListener {
-            mBinding.sslErrorLayout.visibility = View.GONE
-            handler.cancel()
 
-            callback.needBackPress()
-        }
-        //            super.onReceivedSslError(view, handler, error);
+        isSSLError = true
+
+        webClientCallback.onSslErrorHappened(handler, error)
     }
 
     override fun onPageCommitVisible(view: WebView, url: String) {
@@ -258,44 +240,17 @@ class WebClient(private val mBinding: FragmentBrowserBinding, private val callba
             // so there is no need to raise an error and disappear the webView
             return true
         }
-        mBinding.progressbar.visibility = View.GONE
-        mBinding.errorLayout.visibility = View.VISIBLE
+
+        webClientCallback.onErrorHappened(errorCode, description, failingUrl)
         return false
     }
 
     private fun overrideUrlLoad(view: WebView, url: String): Boolean {
-        Log.d(
-            TAG,
-            "overrideUrlLoad() called with: view = [$view], url = [$url]"
-        )
-        if (url.startsWith("http://biglyt") || url.startsWith("https://biglyt") || !url.startsWith(
-                "http"
-            )
-        ) return try {
-            /**
-             * WebViews that visit untrusted web content,
-             * parse intent:// links using Intent.parseUri,
-             * and send those Intents using startActivity
-             * are vulnerable to Intent-Scheme Hijacking.
-             *
-             * To prevent it, Ensure that WebViews cannot send arbitrary Intents
-             */
-            val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
-            // forbid launching activities without BROWSABLE category
-            intent.addCategory("android.intent.category.BROWSABLE")
-            // forbid explicit call
-            intent.component = null
-            // forbid Intent with selector Intent
-            intent.selector = null
-            view.context.startActivity(intent, null)
-            view.goBack()
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "overrideUrlLoad: ", e)
-            true
-        }
+        Log.d(TAG, "overrideUrlLoad() called with: view = [$view], url = [$url]")
 
-        return false
+        return if (browserCallback != null && browserCallback.onOverrideUrl(view, url))
+            browserCallback.onOverrideUrl(view, url)
+        else false
     }
 
 }
