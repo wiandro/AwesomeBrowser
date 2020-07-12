@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebSettings
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.wiandro.awesomebrowser.databinding.FragmentBrowserBinding
 
@@ -20,34 +21,20 @@ import com.wiandro.awesomebrowser.databinding.FragmentBrowserBinding
  */
 class BrowserFragment : Fragment() {
 
-    companion object {
-        private val TAG: String = BrowserFragment::class.java.simpleName
-        private const val KEY_PRODUCT_URL = "PRODUCT_URL"
-        private const val KEY_SHOW_URL_BAR = "SHOW_HEADER"
-
-        fun newInstance(url: String, showUrlBar: Boolean) =
-            BrowserFragment().also {
-                it.arguments = Bundle().apply {
-                    putString(KEY_PRODUCT_URL, url)
-                    putBoolean(KEY_SHOW_URL_BAR, showUrlBar)
-                }
-            }
-    }
 
     private var url: String? = ""
-    private var shouldDesiplayUrlBar = false
-
+    private var shouldDisplayUrlBar = false
     private var _binding: FragmentBrowserBinding? = null
     private val mBinding: FragmentBrowserBinding
-        get() = _binding!!
+        get() = _binding as FragmentBrowserBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments == null) return
 
-        url = arguments!!.getString(KEY_PRODUCT_URL)
-        shouldDesiplayUrlBar = arguments!!.getBoolean(KEY_SHOW_URL_BAR)
+        url = arguments?.getString(KEY_PRODUCT_URL)
+        shouldDisplayUrlBar = arguments?.getBoolean(KEY_SHOW_URL_BAR) as Boolean
 
     }
 
@@ -61,7 +48,7 @@ class BrowserFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mBinding.headerLayout.visibility = if (shouldDesiplayUrlBar) View.VISIBLE else View.GONE
+        mBinding.headerLayout.visibility = if (shouldDisplayUrlBar) View.VISIBLE else View.GONE
 
         initializeWebView()
 
@@ -109,7 +96,7 @@ class BrowserFragment : Fragment() {
 
             }
 
-            webViewClient = WebClient(mBinding, object: WebClientCallback{
+            webViewClient = WebClient(mBinding, object : WebClientCallback {
 
                 override fun onLoadStart(url: String, sslError: Boolean) {
                     setBeautifyURL(url, false)
@@ -124,9 +111,7 @@ class BrowserFragment : Fragment() {
                 }
 
                 override fun needBackPress() {
-                    if (activity != null) {
-                        activity!!.onBackPressed()
-                    }
+                    activity?.onBackPressed()
                 }
 
             })
@@ -139,27 +124,24 @@ class BrowserFragment : Fragment() {
     private fun setBeautifyURL(url: String, isError: Boolean) {
         val uri = Uri.parse(url)
         if (uri == null) {
-            mBinding.urlBar.text = url
+            mBinding.urlBarTextView.text = url
             return
         }
         val scheme = uri.scheme
         val host = uri.host
         if (scheme == null || host == null) {
-            mBinding.urlBar.text = url
+            mBinding.urlBarTextView.text = url
             return
         }
-        Log.i(
-            TAG,
-            "setBeautifyURL: scheme={$scheme}, host={$host}"
-        )
+        Log.i(TAG, "setBeautifyURL: scheme={$scheme}, host={$host}")
         val schemeSpannable = getSchemeSpannable(scheme, isError)
-        mBinding.urlBar.text = schemeSpannable
-        val hostSpannable = getSpannableByColor(host, "#333333")
-        mBinding.urlBar.append(hostSpannable)
+        mBinding.urlBarTextView.text = schemeSpannable
+        val hostSpannable = getSpannableByColor(host, "#222222")
+        mBinding.urlBarTextView.append(hostSpannable)
         val path = uri.path
         if (path != null) {
             val pathSpannable = getSpannableByColor(path, "#777777")
-            mBinding.urlBar.append(pathSpannable)
+            mBinding.urlBarTextView.append(pathSpannable)
         }
     }
 
@@ -169,9 +151,11 @@ class BrowserFragment : Fragment() {
     ): SpannableString {
         if (isError) return getSpannableByColor("$scheme://", "#FF0000")
         return if ("https".equals(scheme, ignoreCase = true)) getSpannableByColor(
+            "$scheme://", "#08AB5F"
+        ) else getSpannableByColor(
             "$scheme://",
-            "#08AB5F"
-        ) else getSpannableByColor("$scheme://", "#000000")
+            "#000000"
+        )
     }
 
     private fun getSpannableByColor(
@@ -198,16 +182,31 @@ class BrowserFragment : Fragment() {
         val uri = Uri.parse(url) ?: return
         val scheme = uri.scheme
         if ("https".equals(scheme, ignoreCase = true)) {
-            mBinding.icSecureConnection.setImageResource(R.drawable.ic_lock_green)
+            mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_lock_green, 0, 0, 0)
         } else {
-            mBinding.icSecureConnection.setImageResource(R.drawable.ic_info)
+            mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_info, 0, 0, 0)
         }
     }
 
     private fun changeURLtoSSLError(url: String) {
         val uri = Uri.parse(url) ?: return
         setBeautifyURL(url, true)
-        mBinding.icSecureConnection.setImageResource(R.drawable.ic_lock_red)
+        mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_lock_red, 0, 0, 0)
+    }
+
+
+    companion object {
+        private val TAG: String = BrowserFragment::class.java.simpleName
+        private const val KEY_PRODUCT_URL = "PRODUCT_URL"
+        private const val KEY_SHOW_URL_BAR = "SHOW_HEADER"
+
+        fun newInstance(url: String, showUrlBar: Boolean) =
+            BrowserFragment().also {
+                it.arguments = Bundle().apply {
+                    putString(KEY_PRODUCT_URL, url)
+                    putBoolean(KEY_SHOW_URL_BAR, showUrlBar)
+                }
+            }
     }
 
 }
