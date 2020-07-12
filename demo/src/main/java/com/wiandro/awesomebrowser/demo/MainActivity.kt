@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
             BrowserFragment.Factory.Builder("https://www.google.com/")
                 .showAddressBar(true)
                 .setCacheMode(BrowserFragment.Factory.CacheMode.LOAD_DEFAULT)
+                //.addHeader("token" , "1233223")
+                //.addHeader("language" , "en")
                 .build()
 
         supportFragmentManager
