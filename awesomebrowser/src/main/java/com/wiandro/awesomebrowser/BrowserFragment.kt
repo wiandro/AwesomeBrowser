@@ -260,7 +260,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
         mBinding.icSecureConnection.setImageResource(R.drawable.ic_lock_red)
     }
 
-    companion object Factory {
+    companion object {
         private val TAG: String = BrowserFragment::class.java.simpleName
 
         private const val COLOR_RED_SCHEME_FOR_ERRORS = "#FF0000"

@@ -43,9 +43,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun navigateToBrowserFragment(){
         browserFragment =
-            BrowserFragment.Factory.Builder("https://www.google.com/")
+            BrowserFragment.Companion.Builder("https://www.google.com/")
                 .showAddressBar(true)
-                .setCacheMode(BrowserFragment.Factory.CacheMode.LOAD_DEFAULT)
+                .setCacheMode(BrowserFragment.Companion.CacheMode.LOAD_DEFAULT)
                 //.addHeader("token" , "1233223")
                 //.addHeader("language" , "en")
                 .build()
