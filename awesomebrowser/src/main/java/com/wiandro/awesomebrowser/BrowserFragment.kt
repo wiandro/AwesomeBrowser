@@ -70,7 +70,7 @@ class BrowserFragment : Fragment() {
         if (url.isNullOrEmpty()) {
             //TODO show empty View
         } else {
-            mBinding.webview.loadUrl(url)
+            mBinding.webview.loadUrl(url!!)
         }
 
         Log.i(TAG, "onViewCreated: URL->$url")
