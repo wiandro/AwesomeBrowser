@@ -5,6 +5,8 @@ import android.webkit.SslErrorHandler
 
 /**
  * CREATED BY Javadhme
+ *
+ * To make an interaction between [BrowserFragment] and [WebClient]
  */
 interface WebClientCallback{
 

@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.webkit.SslErrorHandler
 import android.webkit.WebSettings
 import android.webkit.WebView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.wiandro.awesomebrowser.databinding.FragmentBrowserBinding
 
@@ -25,13 +26,13 @@ class BrowserFragment : Fragment(), WebClientCallback {
 
     private var url: String? = ""
     private var showAddressBar = false
-    private var requestHeaders: HashMap<String, String>? = null
+    private var requestHeaders: Map<String, String>? = null
     private lateinit var cacheModePolicy: CacheMode
     private var callback: BrowserCallback? = null
 
     private var _binding: FragmentBrowserBinding? = null
     private val mBinding: FragmentBrowserBinding
-        get() = _binding!!
+        get() = _binding as FragmentBrowserBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +76,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
             progressbar.visibility = View.VISIBLE
             errorLayout.visibility = View.GONE
             sslErrorLayout.visibility = View.GONE
-            urlBar.text = url
+            urlBarTextView.text = url
         }
         onLoadFinished(url)
     }
@@ -86,7 +87,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
     }
 
     override fun needBackPress() {
-        activity?.onBackPressed() ?:apply {
+        activity?.onBackPressed() ?: apply {
             Log.w(TAG, "needBackPress: activity is NULL")
         }
     }
@@ -106,7 +107,12 @@ class BrowserFragment : Fragment(), WebClientCallback {
 
             progressbar.visibility = View.GONE
             sslErrorLayout.visibility = View.VISIBLE
-            icSecureConnection.setImageResource(R.drawable.ic_lock_red)
+            mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(
+                R.drawable.ic_lock_red,
+                0,
+                0,
+                0
+            )
 
             proceed.setOnClickListener { view12 ->
                 sslErrorLayout.visibility = View.GONE
@@ -137,7 +143,11 @@ class BrowserFragment : Fragment(), WebClientCallback {
     private fun loadUrl() {
 
         url?.let {
-            mBinding.webview.loadUrl(it, requestHeaders)
+            if (requestHeaders == null)
+                mBinding.webview.loadUrl(it)
+            else
+                mBinding.webview.loadUrl(it, requestHeaders!!)
+
         } ?: apply {
             //TODO show empty View
         }
@@ -184,29 +194,37 @@ class BrowserFragment : Fragment(), WebClientCallback {
         val uri = Uri.parse(url)
 
         if (uri == null) {
-            mBinding.urlBar.text = url
+            mBinding.urlBarTextView.text = url
             return
         }
 
         val scheme = uri.scheme
         val host = uri.host
         val path = uri.path
+        val query = uri.query
 
         if (scheme == null || host == null) {
-            mBinding.urlBar.text = url
+            mBinding.urlBarTextView.text = url
             return
         }
+        Log.i(TAG, "setBeautifyURL: uri={$uri}, " +
+                "scheme={$scheme}, " +
+                "host={$host}, " +
+                "path={$path}, " +
+                "queryyyy=={${uri.query}}, " +
+                "query={${uri.encodedQuery}} ")
 
         val schemeSpannable = getSchemeSpannable(scheme, isError)
-        mBinding.urlBar.text = schemeSpannable
-        val hostSpannable =
-            getSpannableByColor(host, COLOR_FOR_HOST)
-        mBinding.urlBar.append(hostSpannable)
-
+        mBinding.urlBarTextView.text = schemeSpannable
+        val hostSpannable = getSpannableByColor(host, COLOR_FOR_HOST)
+        mBinding.urlBarTextView.append(hostSpannable)
         if (path != null) {
-            val pathSpannable =
-                getSpannableByColor(path, COLOR_FOR_PATH_OF_HOST)
-            mBinding.urlBar.append(pathSpannable)
+            val pathSpannable = getSpannableByColor(path, COLOR_FOR_PATH_OF_HOST)
+            mBinding.urlBarTextView.append(pathSpannable)
+        }
+        if(query != null){
+            val pathSpannable = getSpannableByColor("?$query", COLOR_FOR_PATH_OF_HOST)
+            mBinding.urlBarTextView.append(pathSpannable)
         }
     }
 
@@ -248,16 +266,31 @@ class BrowserFragment : Fragment(), WebClientCallback {
         val uri = Uri.parse(url) ?: return
         val scheme = uri.scheme
         if ("https".equals(scheme, ignoreCase = true)) {
-            mBinding.icSecureConnection.setImageResource(R.drawable.ic_lock_green)
+            mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(
+                R.drawable.ic_lock_green,
+                0,
+                0,
+                0
+            )
         } else {
-            mBinding.icSecureConnection.setImageResource(R.drawable.ic_info)
+            mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(
+                R.drawable.ic_info,
+                0,
+                0,
+                0
+            )
         }
     }
 
     private fun changeURLtoSSLError(url: String) {
         val uri = Uri.parse(url) ?: return
         setBeautifyURL(url, true)
-        mBinding.icSecureConnection.setImageResource(R.drawable.ic_lock_red)
+        mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(
+            R.drawable.ic_lock_red,
+            0,
+            0,
+            0
+        )
     }
 
     companion object {

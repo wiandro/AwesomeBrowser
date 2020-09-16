@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="continue_loading">Continue loading(UnSafe)</string>
+    <string name="unable_to_load_address">Unable to load address</string>
+    <string name="this_page_is_not_safe">The connection on this page is not guaranteed and may be dangerous for you.</string>
+    <string name="loading_error">Loading error!</string>
+    <string name="loading">loading…</string>
+</resources>

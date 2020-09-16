@@ -11,13 +11,12 @@ import androidx.annotation.RequiresApi
 
 /**
  * CREATED BY Javadhem
+ *
  */
 class WebClient(
     private val browserCallback: BrowserCallback?,
     private val webClientCallback: WebClientCallback
 ) : WebViewClient() {
-
-    private val TAG = WebClient::class.java.simpleName
 
     private var isSSLError = false
 
@@ -59,12 +58,11 @@ class WebClient(
                     "description = [" + description + "], " +
                     "failingUrl = [" + failingUrl + "]"
         )
-        val isFailed =
-            internalOnReceivedError(errorCode, description, failingUrl)
+        val isFailed = internalOnReceivedError(errorCode, description, failingUrl)
         if (!isFailed) super.onReceivedError(view, errorCode, description, failingUrl)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @TargetApi(Build.VERSION_CODES.M)
     override fun onReceivedError(
         view: WebView,
         request: WebResourceRequest,
@@ -84,12 +82,15 @@ class WebClient(
         if (!isFailed) super.onReceivedError(view, request, error)
     }
 
-    override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
+    override fun onReceivedSslError(
+        view: WebView,
+        handler: SslErrorHandler,
+        error: SslError
+    ) {
         Log.e(
             TAG,
             "onReceivedSslError() called with: view = [$view], handler = [$handler], error = [$error]"
         )
-
         isSSLError = true
 
         webClientCallback.onSslErrorHappened(handler, error)
@@ -103,7 +104,7 @@ class WebClient(
         super.onPageCommitVisible(view, url)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @TargetApi(Build.VERSION_CODES.N)
     override fun onReceivedHttpError(
         view: WebView,
         request: WebResourceRequest,
@@ -251,6 +252,12 @@ class WebClient(
         return if (browserCallback != null && browserCallback.onOverrideUrl(view, url))
             browserCallback.onOverrideUrl(view, url)
         else false
+    }
+
+
+    companion object {
+
+        private val TAG = WebClient::class.java.simpleName
     }
 
 }
