@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="continue_loading">ادامه بارگزاری (ناامن)</string>
+    <string name="unable_to_load_address">عدم بارگزاری آدرس</string>
+    <string name="this_page_is_not_safe">اتصال در این صفحه تضمین شده نیست و ممکن است خطراتی برای شما داشته باشد.</string>
+    <string name="loading_error">خطا در بارگزاری صفحه :(</string>
+    <string name="loading">در حال بارگذاری…</string>
+</resources>

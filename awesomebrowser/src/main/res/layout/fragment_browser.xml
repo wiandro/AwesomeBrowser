@@ -10,7 +10,7 @@
     android:fitsSystemWindows="true"
     android:layoutDirection="ltr">
 
-    <!--        header url bar-->
+    <!-- header url bar-->
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"
@@ -23,43 +23,39 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ic_close"
-            android:layout_width="36dp"
-            android:layout_height="match_parent"
-            android:padding="5dp"
-            android:tint="#777777"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:padding="8dp"
+            android:tint="@color/gray"
             app:srcCompat="@drawable/ic_close" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/ic_secure_connection"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="@dimen/margin16"
-            android:layout_marginLeft="@dimen/margin16"
-            android:background="#f1f1f1"
-            android:padding="8dp"
-            app:srcCompat="@drawable/ic_lock_gray" />
 
-        <TextView
-            android:id="@+id/url_bar"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/url_bar_text_view"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="#f1f1f1"
+            android:drawablePadding="8dp"
             android:gravity="center_vertical"
             android:maxLines="1"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:singleLine="true"
-            android:text="loading..."
-            android:textColor="#333333"
+            android:text="@string/loading"
+            android:textColor="@color/coal"
+            app:drawableLeftCompat="@drawable/ic_lock_gray"
             tools:text="https://google.com" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/logo"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/margin8"
-            android:adjustViewBounds="true"
-            android:padding="3dp"
-            android:scaleType="centerCrop" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:padding="8dp"
+            android:scaleType="centerCrop"
+            android:visibility="invisible" />
 
     </LinearLayout>
 
@@ -70,7 +66,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header_layout" />
 
-    <!--        error layout-->
+    <!-- error layout-->
     <LinearLayout
         android:id="@+id/error_layout"
         android:layout_width="match_parent"
@@ -83,20 +79,20 @@
         app:layout_constraintTop_toBottomOf="@id/header_layout">
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_info" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="خطا در بارگزاری صفحه :( "
-            android:textSize="@dimen/super_large_text_size" />
+            android:text="@string/loading_error"
+            android:textSize="@dimen/large_text_size" />
 
     </LinearLayout>
 
-    <!--        ssl error layout-->
+    <!-- ssl error layout-->
     <LinearLayout
         android:id="@+id/ssl_error_layout"
         android:layout_width="match_parent"
@@ -110,37 +106,37 @@
         app:layout_constraintTop_toBottomOf="@id/header_layout">
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_info" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="اتصال در این صفحه تضمین شده نیست و ممکن است خطراتی برای شما داشته باشد."
-            android:textSize="@dimen/super_large_text_size" />
+            android:text="@string/this_page_is_not_safe"
+            android:textSize="@dimen/large_text_size" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="24dp"
-            android:background="#777777"
+            android:background="@color/gray"
             android:paddingLeft="16dp"
             android:paddingTop="8dp"
             android:paddingRight="16dp"
             android:paddingBottom="8dp"
-            android:text="عدم بارگزاری آدرس"
+            android:text="@string/unable_to_load_address"
             android:textColor="@color/white"
             android:textSize="@dimen/medium_text_size"
             app:layout_constraintBottom_toTopOf="@+id/skip_text_view"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/proceed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -149,8 +145,8 @@
             android:paddingTop="8dp"
             android:paddingRight="16dp"
             android:paddingBottom="8dp"
-            android:text="ادامه بارگزاری (ناامن)"
-            android:textColor="#ec4b2e"
+            android:text="@string/continue_loading"
+            android:textColor="@color/orangeRed"
             android:textSize="@dimen/medium_text_size"
             app:layout_constraintBottom_toTopOf="@+id/skip_text_view"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -162,7 +158,7 @@
         android:id="@+id/progressbar"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="12dp"
+        android:layout_height="10dp"
         android:elevation="@dimen/default_elevation"
         android:indeterminate="true"
         android:indeterminateBehavior="repeat"

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import com.wiandro.awesomebrowser.BrowserFragment
 import com.wiandro.awesomebrowser.demo.databinding.ActivityMainBinding
+import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,18 +15,17 @@ class MainActivity : AppCompatActivity() {
 
     private var browserFragment: BrowserFragment? = null
 
+    override fun onResume() {
+        super.onResume()
+        setupBrowserCallback()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(mBinding.root)
 
-        browserFragment =
-            BrowserFragment.newInstance("https://www.google.com/", true)
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.main_container, browserFragment!!)
-            .commitAllowingStateLoss()
-
+        navigateToBrowserFragment()
     }
 
     override fun onBackPressed() {
@@ -37,4 +37,24 @@ class MainActivity : AppCompatActivity() {
         super.onBackPressed()
     }
 
+    private fun setupBrowserCallback() {
+        browserFragment?.setCallback(BrowserCallback(WeakReference(this)))
+    }
+
+    private fun navigateToBrowserFragment(){
+        browserFragment =
+            BrowserFragment.Companion.Builder("https://www.google.com/")
+                .showAddressBar(true)
+                .setCacheMode(BrowserFragment.Companion.CacheMode.LOAD_DEFAULT)
+                //.addHeader("token" , "1233223")
+                //.addHeader("language" , "en")
+                .build()
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.main_container, browserFragment!!)
+            .commitAllowingStateLoss()
+
+        setupBrowserCallback()
+    }
 }
