@@ -1,53 +1,48 @@
 package com.wiandro.awesomebrowser
 
 import android.annotation.TargetApi
-import android.content.Intent
 import android.graphics.Bitmap
 import android.net.http.SslError
 import android.os.Build
 import android.os.Message
 import android.util.Log
-import android.view.View
 import android.webkit.*
 import androidx.annotation.RequiresApi
-import com.wiandro.awesomebrowser.databinding.FragmentBrowserBinding
 
 /**
  * CREATED BY Javadhem
  *
  */
 class WebClient(
-    private val mBinding: FragmentBrowserBinding,
-    private val callback: WebClientCallback
+    private val browserCallback: BrowserCallback?,
+    private val webClientCallback: WebClientCallback
 ) : WebViewClient() {
-
 
     private var isSSLError = false
 
     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
         Log.i(TAG, "onPageStarted() called with: url = [$url]")
-        mBinding.progressbar.visibility = View.VISIBLE
-        mBinding.errorLayout.visibility = View.GONE
-        mBinding.sslErrorLayout.visibility = View.GONE
 
+        webClientCallback.onLoadStart(url)
         isSSLError = false
-        mBinding.urlBarTextView.text = url
-
-        callback.onLoadStart(url, false)
 
         super.onPageStarted(view, url, favicon)
     }
 
     override fun onPageFinished(view: WebView, url: String) {
         Log.v(TAG, "onPageFinished() called with: url = [$url]")
-        mBinding.progressbar.visibility = View.GONE
 
-        callback.onLoadFinish(url, isSSLError)
+        if (!isSSLError)
+            webClientCallback.onLoadFinish(url)
+
         super.onPageFinished(view, url)
     }
 
     override fun onReceivedClientCertRequest(view: WebView, request: ClientCertRequest) {
-        Log.v(TAG, "onReceivedClientCertRequest() called with: view = [$view], request = [$request]")
+        Log.v(
+            TAG,
+            "onReceivedClientCertRequest() called with: view = [$view], request = [$request]"
+        )
         super.onReceivedClientCertRequest(view, request)
     }
 
@@ -97,23 +92,15 @@ class WebClient(
             "onReceivedSslError() called with: view = [$view], handler = [$handler], error = [$error]"
         )
         isSSLError = true
-        mBinding.progressbar.visibility = View.GONE
-        mBinding.sslErrorLayout.visibility = View.VISIBLE
-        mBinding.proceed.setOnClickListener {
-            mBinding.sslErrorLayout.visibility = View.GONE
-            handler.proceed()
-        }
-        mBinding.cancel.setOnClickListener {
-            mBinding.sslErrorLayout.visibility = View.GONE
-            handler.cancel()
 
-            callback.needBackPress()
-        }
-        //super.onReceivedSslError(view, handler, error);
+        webClientCallback.onSslErrorHappened(handler, error)
     }
 
     override fun onPageCommitVisible(view: WebView, url: String) {
-        Log.i(TAG, "onPageCommitVisible() called with: url = [$url]")
+        Log.i(
+            TAG,
+            "onPageCommitVisible() called with: url = [$url]"
+        )
         super.onPageCommitVisible(view, url)
     }
 
@@ -158,7 +145,10 @@ class WebClient(
     }
 
     override fun onLoadResource(view: WebView, url: String) {
-        Log.v(TAG, "onLoadResource() called with: url = [$url]")
+        Log.v(
+            TAG,
+            "onLoadResource() called with: url = [$url]"
+        )
         super.onLoadResource(view, url)
     }
 
@@ -167,7 +157,10 @@ class WebClient(
         cancelMsg: Message,
         continueMsg: Message
     ) {
-        Log.i(TAG, "onTooManyRedirects() called with: view = cancelMsg = [$cancelMsg], continueMsg = [$continueMsg]")
+        Log.i(
+            TAG,
+            "onTooManyRedirects() called with: view = cancelMsg = [$cancelMsg], continueMsg = [$continueMsg]"
+        )
         super.onTooManyRedirects(view, cancelMsg, continueMsg)
     }
 
@@ -177,7 +170,10 @@ class WebClient(
         threatType: Int,
         callback: SafeBrowsingResponse
     ) {
-        Log.i(TAG, "onSafeBrowsingHit() called with: request = [$request], threatType = [$threatType], callback = [$callback]")
+        Log.i(
+            TAG,
+            "onSafeBrowsingHit() called with: request = [$request], threatType = [$threatType], callback = [$callback]"
+        )
         super.onSafeBrowsingHit(view, request, threatType, callback)
     }
 
@@ -186,12 +182,21 @@ class WebClient(
         url: String,
         isReload: Boolean
     ) {
-        Log.i(TAG, "doUpdateVisitedHistory() called with: view = [$view], url = [$url], isReload = [$isReload]")
+        Log.i(
+            TAG,
+            "doUpdateVisitedHistory() called with: view = [$view], url = [$url], isReload = [$isReload]"
+        )
         super.doUpdateVisitedHistory(view, url, isReload)
     }
 
-    override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-        Log.v(TAG, "shouldOverrideUrlLoading() 1 called with: view = [$view], url = [$url]")
+    override fun shouldOverrideUrlLoading(
+        view: WebView,
+        url: String
+    ): Boolean {
+        Log.v(
+            TAG,
+            "shouldOverrideUrlLoading() 1 called with: view = [$view], url = [$url]"
+        )
         val isSuccess = overrideUrlLoad(view, url)
         return if (!isSuccess) {
             super.shouldOverrideUrlLoading(view, url)
@@ -199,8 +204,12 @@ class WebClient(
     }
 
     @TargetApi(Build.VERSION_CODES.N)
-    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-        Log.v(TAG, "shouldOverrideUrlLoading() 2 called with: " +
+    override fun shouldOverrideUrlLoading(
+        view: WebView,
+        request: WebResourceRequest
+    ): Boolean {
+        Log.v(
+            TAG, "shouldOverrideUrlLoading() 2 called with: " +
                     "request = [" + request.url + "], " +
                     "method=[" + request.method + "], " +
                     "is redirect=[" + request.isRedirect + "], "
@@ -210,7 +219,11 @@ class WebClient(
         return if (!isSuccess) super.shouldOverrideUrlLoading(view, request) else true
     }
 
-    private fun internalOnReceivedError(errorCode: Int, description: String, failingUrl: String): Boolean {
+    private fun internalOnReceivedError(
+        errorCode: Int,
+        description: String,
+        failingUrl: String
+    ): Boolean {
         Log.e(
             TAG, "internalOnReceivedError() called with: " +
                     "errorCode = [" + errorCode + "], " +
@@ -222,43 +235,23 @@ class WebClient(
             || failingUrl.endsWith(".css")
         ) {
             //sometimes falling in error when trying to request to
-            // https://...js
+            // https://www.googletagmanager.com/gtag/js...
+            // or
+            // https://www.google-analytics.com/analytics.js
             // so there is no need to raise an error and disappear the webView
             return true
         }
-        mBinding.progressbar.visibility = View.GONE
-        mBinding.errorLayout.visibility = View.VISIBLE
+
+        webClientCallback.onErrorHappened(errorCode, description, failingUrl)
         return false
     }
 
     private fun overrideUrlLoad(view: WebView, url: String): Boolean {
         Log.d(TAG, "overrideUrlLoad() called with: view = [$view], url = [$url]")
-        if (url.startsWith("http://biglyt") || url.startsWith("https://biglyt") || !url.startsWith("http")) return try {
-            /**
-             * WebViews that visit untrusted web content,
-             * parse intent:// links using Intent.parseUri,
-             * and send those Intents using startActivity
-             * are vulnerable to Intent-Scheme Hijacking.
-             *
-             * To prevent it, Ensure that WebViews cannot send arbitrary Intents
-             */
-            val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME).apply {
-                // forbid launching activities without BROWSABLE category
-                addCategory("android.intent.category.BROWSABLE")
-                // forbid explicit call
-                component = null
-                // forbid Intent with selector Intent
-                selector = null
-            }
-            view.context.startActivity(intent, null)
-            view.goBack()
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            true
-        }
 
-        return false
+        return if (browserCallback != null && browserCallback.onOverrideUrl(view, url))
+            browserCallback.onOverrideUrl(view, url)
+        else false
     }
 
 
