@@ -352,14 +352,15 @@ class BrowserFragment : Fragment(), WebClientCallback {
             }
 
             fun build(): BrowserFragment {
+                val bundle = Bundle().apply {
+                    putString(KEY_PRODUCT_URL, url)
+                    putBoolean(KEY_SHOW_URL_BAR, showAddressBar)
+                    putSerializable(KEY_REQUEST_HEADERS, headers)
+                    putSerializable(KEY_REQUEST_CACHE_MODE, cacheMode)
+                    putBoolean(KEY_BROWSER_KEEP_SCREEN_ON, keepScreenOn)
+                }
                 return BrowserFragment().apply {
-                    arguments = Bundle().apply {
-                        putString(KEY_PRODUCT_URL, url)
-                        putBoolean(KEY_SHOW_URL_BAR, showAddressBar)
-                        putSerializable(KEY_REQUEST_HEADERS, headers)
-                        putSerializable(KEY_REQUEST_CACHE_MODE, cacheMode)
-                        putBoolean(KEY_BROWSER_KEEP_SCREEN_ON, keepScreenOn)
-                    }
+                    this.arguments = bundle
                 }
             }
 
