@@ -109,7 +109,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
             progressbar.visibility = View.GONE
             sslErrorLayout.visibility = View.VISIBLE
             mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(
-                R.drawable.ic_lock_red,
+                R.drawable.ic_lock_red_24px,
                 0,
                 0,
                 0
@@ -117,15 +117,13 @@ class BrowserFragment : Fragment(), WebClientCallback {
 
             proceed.setOnClickListener { view12 ->
                 sslErrorLayout.visibility = View.GONE
-                handler!!.proceed()
+                handler?.proceed()
             }
 
             cancel.setOnClickListener { view1 ->
                 sslErrorLayout.visibility = View.GONE
-                handler!!.cancel()
-                if (activity != null) {
-                    activity!!.onBackPressed()
-                }
+                handler?.cancel()
+                activity?.onBackPressed()
             }
         }
     }
@@ -144,15 +142,11 @@ class BrowserFragment : Fragment(), WebClientCallback {
     private fun loadUrl() {
 
         url?.let {
-            if (requestHeaders == null)
-                mBinding.webview.loadUrl(it)
-            else
-                mBinding.webview.loadUrl(it, requestHeaders!!)
-
+            if (requestHeaders == null) mBinding.webview.loadUrl(it)
+            else mBinding.webview.loadUrl(it, requestHeaders!!)
         } ?: apply {
-            //TODO show empty View
+            // show empty View
         }
-
         Log.i(TAG, "onViewCreated: URL->$url")
     }
 
@@ -175,7 +169,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
         with(webView.settings) {
 
             lightTouchEnabled = true
-            javaScriptEnabled = true //TODO get this from builder
+            javaScriptEnabled = true //get this from builder
             cacheMode = cacheModePolicy.getModeValue()
             setAppCacheEnabled(true)
             domStorageEnabled = true
@@ -185,8 +179,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
             useWideViewPort = true
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mBinding.webview.settings.mixedContentMode =
-                    WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
+                mBinding.webview.settings.mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
             }
 
         }
@@ -209,12 +202,14 @@ class BrowserFragment : Fragment(), WebClientCallback {
             mBinding.urlBarTextView.text = url
             return
         }
-        Log.i(TAG, "setBeautifyURL: uri={$uri}, " +
-                "scheme={$scheme}, " +
-                "host={$host}, " +
-                "path={$path}, " +
-                "queryyyy=={${uri.query}}, " +
-                "query={${uri.encodedQuery}} ")
+        Log.i(
+            TAG, "setBeautifyURL: uri={$uri}, " +
+                    "scheme={$scheme}, " +
+                    "host={$host}, " +
+                    "path={$path}, " +
+                    "queryyyy=={${uri.query}}, " +
+                    "query={${uri.encodedQuery}} "
+        )
 
         val schemeSpannable = getSchemeSpannable(scheme, isError)
         mBinding.urlBarTextView.text = schemeSpannable
@@ -224,7 +219,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
             val pathSpannable = getSpannableByColor(path, COLOR_FOR_PATH_OF_HOST)
             mBinding.urlBarTextView.append(pathSpannable)
         }
-        if(query != null){
+        if (query != null) {
             val pathSpannable = getSpannableByColor("?$query", COLOR_FOR_PATH_OF_HOST)
             mBinding.urlBarTextView.append(pathSpannable)
         }
@@ -269,14 +264,14 @@ class BrowserFragment : Fragment(), WebClientCallback {
         val scheme = uri.scheme
         if ("https".equals(scheme, ignoreCase = true)) {
             mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(
-                R.drawable.ic_lock_green,
+                R.drawable.ic_lock_green_24px,
                 0,
                 0,
                 0
             )
         } else {
             mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(
-                R.drawable.ic_info,
+                R.drawable.ic_info_24px,
                 0,
                 0,
                 0
@@ -288,11 +283,18 @@ class BrowserFragment : Fragment(), WebClientCallback {
         val uri = Uri.parse(url) ?: return
         setBeautifyURL(url, true)
         mBinding.urlBarTextView.setCompoundDrawablesWithIntrinsicBounds(
-            R.drawable.ic_lock_red,
+            R.drawable.ic_lock_red_24px,
             0,
             0,
             0
         )
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mBinding.webview.destroy()
+        _binding = null
     }
 
     companion object {
@@ -323,6 +325,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
         }
 
         class Builder(private val url: String) {
+
             private var showAddressBar = false
             private val headers = HashMap<String, String>()
             private var cacheMode: CacheMode? = CacheMode.LOAD_NO_CACHE
@@ -344,21 +347,22 @@ class BrowserFragment : Fragment(), WebClientCallback {
                 return this
             }
 
-            fun setKeepScreenOn(): Builder? {
+            fun setKeepScreenOn(): Builder {
                 keepScreenOn = true
                 return this
             }
 
             fun build(): BrowserFragment {
-                val bundle = Bundle()
-                bundle.putString(KEY_PRODUCT_URL, url)
-                bundle.putBoolean(KEY_SHOW_URL_BAR, showAddressBar)
-                bundle.putSerializable(KEY_REQUEST_HEADERS, headers)
-                bundle.putSerializable(KEY_REQUEST_CACHE_MODE, cacheMode)
-                bundle.putBoolean(KEY_BROWSER_KEEP_SCREEN_ON, keepScreenOn)
-                val fragment = BrowserFragment()
-                fragment.arguments = bundle
-                return fragment
+                val bundle = Bundle().apply {
+                    putString(KEY_PRODUCT_URL, url)
+                    putBoolean(KEY_SHOW_URL_BAR, showAddressBar)
+                    putSerializable(KEY_REQUEST_HEADERS, headers)
+                    putSerializable(KEY_REQUEST_CACHE_MODE, cacheMode)
+                    putBoolean(KEY_BROWSER_KEEP_SCREEN_ON, keepScreenOn)
+                }
+                return BrowserFragment().apply {
+                    arguments = bundle
+                }
             }
 
         }

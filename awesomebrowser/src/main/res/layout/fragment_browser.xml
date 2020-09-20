@@ -45,7 +45,7 @@
             android:singleLine="true"
             android:text="@string/loading"
             android:textColor="@color/coal"
-            app:drawableLeftCompat="@drawable/ic_lock_gray"
+            app:drawableLeftCompat="@drawable/ic_lock_gray_24px"
             tools:text="https://google.com" />
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -81,7 +81,7 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_info" />
+            app:srcCompat="@drawable/ic_info_100px" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
@@ -108,7 +108,7 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_info" />
+            app:srcCompat="@drawable/ic_info_100px" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
