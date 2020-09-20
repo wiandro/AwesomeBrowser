@@ -15,7 +15,6 @@ import android.view.ViewGroup
 import android.webkit.SslErrorHandler
 import android.webkit.WebSettings
 import android.webkit.WebView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.wiandro.awesomebrowser.databinding.FragmentBrowserBinding
 
@@ -29,6 +28,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
     private var requestHeaders: Map<String, String>? = null
     private lateinit var cacheModePolicy: CacheMode
     private var callback: BrowserCallback? = null
+    private var mKeepScreenOn = false
 
     private var _binding: FragmentBrowserBinding? = null
     private val mBinding: FragmentBrowserBinding
@@ -44,6 +44,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
             showAddressBar = getBoolean(KEY_SHOW_URL_BAR)
             requestHeaders = getSerializable(KEY_REQUEST_HEADERS) as HashMap<String, String>?
             cacheModePolicy = getSerializable(KEY_REQUEST_CACHE_MODE) as CacheMode
+            mKeepScreenOn = getBoolean(KEY_BROWSER_KEEP_SCREEN_ON)
         }
 
     }
@@ -163,6 +164,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
             isVerticalScrollBarEnabled = false
             isHorizontalScrollBarEnabled = false
             setupSetting(this)
+            keepScreenOn = mKeepScreenOn
             webViewClient = WebClient(callback, this@BrowserFragment)
         }
 
@@ -306,6 +308,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
         private const val KEY_SHOW_URL_BAR = "SHOW_HEADER"
         private const val KEY_REQUEST_HEADERS = "REQUEST_HEADERS"
         private const val KEY_REQUEST_CACHE_MODE = "REQUEST_CACHE_MODE"
+        private const val KEY_BROWSER_KEEP_SCREEN_ON = "KEEP_SCREEN_ON"
 
         enum class CacheMode(private var modeValue: Int) {
             LOAD_DEFAULT(WebSettings.LOAD_DEFAULT),
@@ -323,6 +326,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
             private var showAddressBar = false
             private val headers = HashMap<String, String>()
             private var cacheMode: CacheMode? = CacheMode.LOAD_NO_CACHE
+            private var keepScreenOn = false
 
             fun showAddressBar(showAddressBar: Boolean): Builder {
                 this.showAddressBar = showAddressBar
@@ -340,12 +344,18 @@ class BrowserFragment : Fragment(), WebClientCallback {
                 return this
             }
 
+            fun setKeepScreenOn(): Builder? {
+                keepScreenOn = true
+                return this
+            }
+
             fun build(): BrowserFragment {
                 val bundle = Bundle()
                 bundle.putString(KEY_PRODUCT_URL, url)
                 bundle.putBoolean(KEY_SHOW_URL_BAR, showAddressBar)
                 bundle.putSerializable(KEY_REQUEST_HEADERS, headers)
                 bundle.putSerializable(KEY_REQUEST_CACHE_MODE, cacheMode)
+                bundle.putBoolean(KEY_BROWSER_KEEP_SCREEN_ON, keepScreenOn)
                 val fragment = BrowserFragment()
                 fragment.arguments = bundle
                 return fragment
