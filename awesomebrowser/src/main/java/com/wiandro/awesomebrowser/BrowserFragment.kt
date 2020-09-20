@@ -102,7 +102,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
 
     override fun onSslErrorHappened(handler: SslErrorHandler?, error: SslError?) {
 
-        changeURLtoSSLError(url!!)
+        url?.let { changeURLtoSSLError(it) }
 
         with(mBinding) {
 
@@ -115,12 +115,12 @@ class BrowserFragment : Fragment(), WebClientCallback {
                 0
             )
 
-            proceed.setOnClickListener { view12 ->
+            proceed.setOnClickListener { _ ->
                 sslErrorLayout.visibility = View.GONE
                 handler?.proceed()
             }
 
-            cancel.setOnClickListener { view1 ->
+            cancel.setOnClickListener {
                 sslErrorLayout.visibility = View.GONE
                 handler?.cancel()
                 activity?.onBackPressed()
@@ -132,8 +132,8 @@ class BrowserFragment : Fragment(), WebClientCallback {
         if (mBinding.webview.canGoBack()) {
             mBinding.webview.goBack()
             true
-        } else
-            false
+        } else false
+
 
     fun setCallback(callback: BrowserCallback) {
         this.callback = callback
@@ -179,7 +179,8 @@ class BrowserFragment : Fragment(), WebClientCallback {
             useWideViewPort = true
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mBinding.webview.settings.mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
+                mBinding.webview.settings.mixedContentMode =
+                    WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
             }
 
         }
@@ -226,10 +227,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
     }
 
 
-    private fun getSchemeSpannable(
-        scheme: String,
-        isError: Boolean
-    ): SpannableString? {
+    private fun getSchemeSpannable(scheme: String, isError: Boolean): SpannableString? {
         Log.d(TAG, "getSchemeSpannable() called with: scheme = [$scheme], isError = [$isError]")
 
         if (isError) return getSpannableByColor("$scheme://", COLOR_RED_SCHEME_FOR_ERRORS)
@@ -298,6 +296,7 @@ class BrowserFragment : Fragment(), WebClientCallback {
     }
 
     companion object {
+
         private val TAG: String = BrowserFragment::class.java.simpleName
 
         private const val COLOR_RED_SCHEME_FOR_ERRORS = "#FF0000"
@@ -305,12 +304,12 @@ class BrowserFragment : Fragment(), WebClientCallback {
         private const val COLOR_GRAY_FOR_HTTP_SCHEME = "#000000"
         private const val COLOR_FOR_HOST = "#333333"
         private const val COLOR_FOR_PATH_OF_HOST = "#777777"
-
         private const val KEY_PRODUCT_URL = "PRODUCT_URL"
         private const val KEY_SHOW_URL_BAR = "SHOW_HEADER"
         private const val KEY_REQUEST_HEADERS = "REQUEST_HEADERS"
         private const val KEY_REQUEST_CACHE_MODE = "REQUEST_CACHE_MODE"
         private const val KEY_BROWSER_KEEP_SCREEN_ON = "KEEP_SCREEN_ON"
+
 
         enum class CacheMode(private var modeValue: Int) {
             LOAD_DEFAULT(WebSettings.LOAD_DEFAULT),
@@ -353,15 +352,14 @@ class BrowserFragment : Fragment(), WebClientCallback {
             }
 
             fun build(): BrowserFragment {
-                val bundle = Bundle().apply {
-                    putString(KEY_PRODUCT_URL, url)
-                    putBoolean(KEY_SHOW_URL_BAR, showAddressBar)
-                    putSerializable(KEY_REQUEST_HEADERS, headers)
-                    putSerializable(KEY_REQUEST_CACHE_MODE, cacheMode)
-                    putBoolean(KEY_BROWSER_KEEP_SCREEN_ON, keepScreenOn)
-                }
                 return BrowserFragment().apply {
-                    arguments = bundle
+                    arguments = Bundle().apply {
+                        putString(KEY_PRODUCT_URL, url)
+                        putBoolean(KEY_SHOW_URL_BAR, showAddressBar)
+                        putSerializable(KEY_REQUEST_HEADERS, headers)
+                        putSerializable(KEY_REQUEST_CACHE_MODE, cacheMode)
+                        putBoolean(KEY_BROWSER_KEEP_SCREEN_ON, keepScreenOn)
+                    }
                 }
             }
 
